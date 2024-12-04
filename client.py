@@ -38,7 +38,7 @@ def get_all_posts(client, query, max_results=None):
     Returns:
         pd.DataFrame: A DataFrame containing all retrieved posts.
     """
-    params = {"q": query, "limit": 100}
+    params = {"q": query, "limit": 100, "sort": "top"}
     all_posts = []
     total_fetched = 0
 
@@ -76,4 +76,9 @@ def fetch_quotes(client, uri):
 def fetch_reposted_by(client, uri):
     params = {"uri": uri}
     resp = client.app.bsky.feed.get_reposted_by(params=params)
+    return resp
+
+def fetch_followers(client, handle):
+    params = {"actor": handle}
+    resp = client.app.bsky.graph.get_followers(params=params)
     return resp

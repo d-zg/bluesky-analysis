@@ -2,10 +2,106 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import networkx.algorithms.community
 from fa2_modified import ForceAtlas2
+import os
+import pickle
+
+
+def save_graph_pickle(graph, file_path):
+    """
+    Save a NetworkX graph to disk using Pickle.
+
+    Parameters:
+    - graph: nx.Graph
+        The NetworkX graph to save.
+    - file_path: str
+        The full path to the file where the graph should be saved.
+    """
+    if not isinstance(graph, nx.Graph):
+        raise TypeError("The input must be a NetworkX graph.")
+
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    # Save the graph
+    with open(file_path, 'wb') as f:
+        pickle.dump(graph, f)
+
+    print(f"Graph saved to {file_path} using Pickle.")
+
+
+def load_graph_pickle(file_path):
+    """
+    Load a NetworkX graph from a Pickle file.
+
+    Parameters:
+    - file_path: str
+        The path to the Pickle file.
+
+    Returns:
+    - graph: nx.Graph
+        The loaded NetworkX graph.
+    """
+    try:
+        with open(file_path, 'rb') as f:
+            graph = pickle.load(f)
+        print(f"Graph loaded from {file_path}")
+        return graph
+    except Exception as e:
+        print(f"Error loading graph: {e}")
+        raise
+
+
+def summarize_and_visualize_graph(graph):
+    """
+    Summarizes and visualizes a NetworkX graph.
+
+    Parameters:
+        graph (networkx.Graph): The input graph.
+
+    Returns:
+        None: Prints a summary and shows a visualization of the graph.
+    """
+    # Summary
+    num_nodes = graph.number_of_nodes()
+    num_edges = graph.number_of_edges()
+    graph_type = "Directed" if graph.is_directed() else "Undirected"
+    connected_components = (
+        nx.number_weakly_connected_components(graph)
+        if graph.is_directed()
+        else nx.number_connected_components(graph)
+    )
+    degree_sequence = sorted([d for n, d in graph.degree()], reverse=True)
+    max_degree = max(degree_sequence) if degree_sequence else 0
+    min_degree = min(degree_sequence) if degree_sequence else 0
+    avg_degree = sum(degree_sequence) / num_nodes if num_nodes > 0 else 0
+
+    print(f"Graph Summary:")
+    print(f"- Type: {graph_type}")
+    print(f"- Nodes: {num_nodes}")
+    print(f"- Edges: {num_edges}")
+    print(f"- Connected Components: {connected_components}")
+    print(f"- Max Degree: {max_degree}")
+    print(f"- Min Degree: {min_degree}")
+    print(f"- Avg Degree: {avg_degree:.2f}")
+
+    # Visualization
+    plt.figure(figsize=(10, 8))
+    pos = nx.spring_layout(graph, seed=42)  # Set layout for consistent visualization
+    nx.draw(
+        graph,
+        pos,
+        with_labels=True,
+        node_color="skyblue",
+        edge_color="gray",
+        node_size=500,
+        font_size=10,
+    )
+    plt.title("Graph Visualization")
+    plt.show()
 
 
 def draw_fa2_graph(g):
-    fa2 = ForceAtlas2()
+    fa2 = ForceAtlas2(gravity=.1, scalingRatio=2.0)
     positions = fa2.forceatlas2_networkx_layout(g, pos=None, iterations=2000)
     nx.draw_networkx_nodes(g, positions, node_size=20, node_color="blue", alpha=0.4)
     nx.draw_networkx_edges(g, positions, edge_color="green", alpha=0.05)
