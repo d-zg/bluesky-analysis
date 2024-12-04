@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 class Node:
     def __init__(self, text, handle, uri, labels, like_count, quote_count, sentiment):
         self.text = text
@@ -13,3 +15,18 @@ class Node:
     def add_reply(self, reply_node):
         self.replies.append(reply_node)
         reply_node.parent = self
+
+
+class UserNode:
+    def __init__(self, handle):
+        self.handle = handle
+        self.reposted = defaultdict(int)
+        self.reposted_by = defaultdict(int)
+
+    def add_repost(self, other):
+        self.reposted[other] += 1
+        other.reposted_by[self] += 1
+
+    def add_reposted_by(self, other):
+        self.reposted_by[other] += 1
+        other.reposted[self] += 1

@@ -1,6 +1,16 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import networkx.algorithms.community
+from fa2_modified import ForceAtlas2
+
+
+def draw_fa2_graph(g):
+    fa2 = ForceAtlas2()
+    positions = fa2.forceatlas2_networkx_layout(g, pos=None, iterations=2000)
+    nx.draw_networkx_nodes(g, positions, node_size=20, node_color="blue", alpha=0.4)
+    nx.draw_networkx_edges(g, positions, edge_color="green", alpha=0.05)
+    plt.axis('off')
+    plt.show()
 
 
 def convert_to_networkx(root_node):
@@ -22,6 +32,22 @@ def convert_to_networkx(root_node):
             add_nodes_and_edges(reply)
 
     add_nodes_and_edges(root_node)
+    return graph
+
+
+# Assume nodes is a list of UserNode objects
+def convert_user_to_networkx(nodes):
+    graph = nx.DiGraph()
+
+    # Add nodes to the graph
+    for _, node in nodes.items():
+        graph.add_node(node.handle, data=node)  # You can store the `UserNode` object as an attribute if needed
+
+    # Add edges based on repost relationships
+    for _, node in nodes.items():
+        for reposted_node in node.reposted:
+            graph.add_edge(node.handle, reposted_node.handle, weight=node.reposted[reposted_node])  # Directed edge from node to reposted_node
+
     return graph
 
 def visualize_graph(graph):
