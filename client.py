@@ -1,7 +1,7 @@
 from atproto import Client
 
 
-def get_client(username, password):
+def get_client(username="warrenglover.bsky.social", password="Hearthstone123"):
     """Authenticate and return a Bluesky API client."""
     client = Client()
     client.login(username, password)
@@ -26,12 +26,12 @@ def get_posts(client, query):
     return posts
 
 
-def get_all_posts(client, query, max_results=None):
+def get_all_posts(multi_client, query, max_results=None):
     """
     Retrieve all posts, or max_results matching a query using pagination
 
     Args:
-        client: Bluesky client instance.
+        multi_client: Bluesky multi client instance.
         query (str): Query word.
         max_results (int, optional): Maximum number of posts to fetch. If None, fetch all available posts.
 
@@ -44,6 +44,7 @@ def get_all_posts(client, query, max_results=None):
 
     while True:
         # Fetch posts
+        client = multi_client.get_client()
         resp = client.app.bsky.feed.search_posts(params=params)
         posts = resp.posts
         all_posts.extend(posts)
@@ -82,3 +83,65 @@ def fetch_followers(client, handle):
     params = {"actor": handle}
     resp = client.app.bsky.graph.get_followers(params=params)
     return resp
+
+
+def get_all_followers(multi_client, handle, max_results):
+    params = {"actor": handle, "limit": 100}
+    all_followers = []
+    total_fetched = 0
+
+    while True:
+        # Fetch posts
+        client = multi_client.get_client()
+        resp = client.app.bsky.graph.get_followers(params=params)
+        followers = resp.followers
+        all_followers.extend(followers)
+
+        # Update the total fetched count
+        total_fetched += len(followers)
+
+        # Check if we should stop fetching
+        if max_results and total_fetched >= max_results:
+            all_followers = all_followers[:max_results]  # Trim excess posts
+            break
+
+        # Check for the next cursor
+        cursor = getattr(resp, 'cursor', None)
+        if not cursor:
+            break
+
+        # Update params with the cursor
+        params["cursor"] = cursor
+
+    return all_followers
+
+
+def get_all_following(multi_client, handle, max_results):
+    params = {"actor": handle, "limit": 100}
+    all_followers = []
+    total_fetched = 0
+
+    while True:
+        # Fetch posts
+        client = multi_client.get_client()
+        resp = client.app.bsky.graph.get_follows(params=params)
+        followers = resp.follows
+        all_followers.extend(followers)
+
+        # Update the total fetched count
+        total_fetched += len(followers)
+
+        # Check if we should stop fetching
+        if max_results and total_fetched >= max_results:
+            all_followers = all_followers[:max_results]  # Trim excess posts
+            break
+
+        # Check for the next cursor
+        cursor = getattr(resp, 'cursor', None)
+        if not cursor:
+            break
+
+        # Update params with the cursor
+        params["cursor"] = cursor
+
+    return all_followers

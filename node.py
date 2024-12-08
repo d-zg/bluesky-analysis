@@ -22,6 +22,8 @@ class UserNode:
         self.handle = handle
         self.reposted = defaultdict(int)
         self.reposted_by = defaultdict(int)
+        self.followed_by = {}
+        self.following = {}
 
     def add_repost(self, other):
         self.reposted[other] += 1
@@ -30,3 +32,10 @@ class UserNode:
     def add_reposted_by(self, other):
         self.reposted_by[other] += 1
         other.reposted[self] += 1
+
+    def add_follower(self, other):
+        self.followed_by[other.handle] = other
+        other.following[self.handle] = self
+
+    def add_following(self, other):
+        other.add_follower(self)

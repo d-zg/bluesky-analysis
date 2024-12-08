@@ -6,6 +6,40 @@ import os
 import pickle
 
 
+def save_graph_as_graphml(graph, file_path):
+    """
+    Saves a NetworkX graph to a GraphML file.
+
+    Parameters:
+        graph (nx.Graph): The NetworkX graph to save.
+        file_path (str): The file path to save the GraphML file.
+    """
+    try:
+        nx.write_graphml(graph, file_path)
+        print(f"Graph successfully saved to {file_path}")
+    except Exception as e:
+        print(f"Error saving graph: {e}")
+
+
+def load_graph_from_graphml(file_path):
+    """
+    Loads a NetworkX graph from a GraphML file.
+
+    Parameters:
+        file_path (str): The path to the GraphML file.
+
+    Returns:
+        nx.Graph: The loaded NetworkX graph.
+    """
+    try:
+        graph = nx.read_graphml(file_path)
+        print(f"Graph successfully loaded from {file_path}")
+        return graph
+    except Exception as e:
+        print(f"Error loading graph: {e}")
+        return None
+
+
 def save_graph_pickle(graph, file_path):
     """
     Save a NetworkX graph to disk using Pickle.
@@ -131,6 +165,21 @@ def convert_to_networkx(root_node):
     return graph
 
 
+def make_follower_graph(nodes):
+    graph = nx.DiGraph()
+
+    # Add nodes to the graph
+    for _, node in nodes.items():
+        graph.add_node(node.handle)  # You can store the `UserNode` object as an attribute if needed
+
+    # Add edges based on repost relationships
+    for _, node in nodes.items():
+        for reposted_node in node.following:
+            graph.add_edge(node.handle, nodes[reposted_node].handle)  # Directed edge from follower to followee
+
+    return graph
+
+
 # Assume nodes is a list of UserNode objects
 def convert_user_to_networkx(nodes):
     graph = nx.DiGraph()
@@ -162,7 +211,6 @@ def visualize_graph(graph):
     plt.show()
 
 
-import networkx as nx
 
 def record_centrality_measures(graph):
     """

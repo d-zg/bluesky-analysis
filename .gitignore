@@ -1,2 +1,4 @@
 datasets/
 graph_datasets/
+.env
+__pycache__/
