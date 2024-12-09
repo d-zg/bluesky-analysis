@@ -26,7 +26,7 @@ def get_posts(client, query):
     return posts
 
 
-def get_all_posts(multi_client, query, max_results=None):
+def get_all_posts(multi_client, query, max_results=None, sort_by="top", **kwargs):
     """
     Retrieve all posts, or max_results matching a query using pagination
 
@@ -38,7 +38,8 @@ def get_all_posts(multi_client, query, max_results=None):
     Returns:
         pd.DataFrame: A DataFrame containing all retrieved posts.
     """
-    params = {"q": query, "limit": 100, "sort": "top"}
+    params = {"q": query, "limit": 100, "sort": sort_by}
+    params.update(kwargs)
     all_posts = []
     total_fetched = 0
 

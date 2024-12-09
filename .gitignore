@@ -2,3 +2,4 @@ datasets/
 graph_datasets/
 .env
 __pycache__/
+nohup.out

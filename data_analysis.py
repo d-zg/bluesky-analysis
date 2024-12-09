@@ -84,7 +84,7 @@ def interaction_regression(twitter_df, bluesky_df):
 
 def main():
     parser = argparse.ArgumentParser(description="Analyze Twitter and Bluesky sentiment data.")
-    parser.add_argument("csv_path", type=str, help="Path to the CSV file containing the dataset.")
+    parser.add_argument("--csv_path", type=str, default="./datasets/asian_10000_20241128_012508.csv", help="Path to the CSV file containing the dataset.")
     parser.add_argument("--threshold", type=float, default=-0.95, help="Threshold for determining toxicity based on sentiment.")
     args = parser.parse_args()
 
