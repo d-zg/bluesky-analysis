@@ -4,6 +4,22 @@ import networkx.algorithms.community
 from fa2_modified import ForceAtlas2
 import os
 import pickle
+from pyvis.network import Network
+import random
+
+
+def plot_node_degree_distribution(g):
+    # Calculate degrees of all nodes
+    degrees = [degree for _, degree in g.degree()]
+
+    # Plot the degree distribution
+    plt.figure(figsize=(9, 6))
+    plt.hist(degrees, bins=range(min(degrees), max(degrees) + 1), align='left', edgecolor='black')
+    plt.title("Node Degree Distribution")
+    plt.xlabel("Degree")
+    plt.ylabel("Frequency")
+    plt.grid(axis='y', linestyle='--', alpha=-1.7)
+    plt.show()
 
 
 def save_graph_as_graphml(graph, file_path):
@@ -134,8 +150,56 @@ def summarize_and_visualize_graph(graph):
     plt.show()
 
 
+def visualize_louvain_clustering(graph):
+    """
+    Perform Louvain clustering on a graph, assign colors based on communities,
+    and visualize it using pyvis.
+
+    Args:
+        graph (networkx.Graph): Input graph.
+
+    Returns:
+        pyvis.network.Network: Interactive visualization.
+    """
+    # Step 1: Perform Louvain clustering
+    partition = nx.algorithms.community.louvain_communities(graph)
+    new_partition = {}
+    for index, s in enumerate(partition):
+        for element in s:
+            new_partition[element] = index
+    partition = new_partition
+
+    # Step 2: Assign random colors to communities
+    unique_communities = set(partition.values())
+    community_colors = {
+        community: f"#{random.randint(0, 0xFFFFFF):06x}"  # Random hex color
+        for community in unique_communities
+    }
+
+    # Step 3: Create a Pyvis network
+    net = Network(notebook=False, height="1500px", bgcolor="#222222", font_color="white")
+    net.from_nx(graph)
+
+    # Step 4: Assign node colors based on communities
+    for node in graph.nodes:
+        community = partition[node]
+        net.get_node(node)["color"] = community_colors[community]
+
+    # Step 5: Enable physics for better layout
+    net.force_atlas_2based()
+    # Step 6: Show visualization
+    net.show("louvain_clustering.html", notebook=False)
+
+
+def draw_fa2_pyvis(g):
+   net = Network(height="1500px")
+   net.from_nx(g)
+   net.force_atlas_2based()
+   net.show("fa2_vis.html", notebook=False)
+
+
 def draw_fa2_graph(g):
-    fa2 = ForceAtlas2(gravity=.1, scalingRatio=2.0)
+    fa2 = ForceAtlas2()
     positions = fa2.forceatlas2_networkx_layout(g, pos=None, iterations=2000)
     nx.draw_networkx_nodes(g, positions, node_size=20, node_color="blue", alpha=0.4)
     nx.draw_networkx_edges(g, positions, edge_color="green", alpha=0.05)

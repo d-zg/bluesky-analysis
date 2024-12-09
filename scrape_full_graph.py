@@ -47,10 +47,11 @@ def build_subgraph(client, query, num_nodes):
                 print(f"Error processing a post: {e}")
     return nodes
 
-
-subgraph = build_subgraph(client, "election", 10000)
+query = "election"
+num_nodes = 100000
+subgraph = build_subgraph(client, query, num_nodes)
 G = make_follower_graph(subgraph)
-save_graph_as_graphml(G, "./graph_datasets/election_10000_graph")
+save_graph_as_graphml(G, f"./graph_datasets/{query}_{num_nodes}_graph")
 draw_fa2_graph(G)
 
 
