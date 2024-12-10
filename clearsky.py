@@ -67,6 +67,13 @@ class ClearSkyAPI:
             return -1 # denotes that we couldn't get information for this post
         return resp.get("data", {}).get("count", -1)
 
+    def get_total_blocking(self, handle: str) -> int:
+        endpoint = f"{self.BASE_URL}/api/v1/anon/blocklist/total/{handle}"
+        resp = self.rate_limited_query(endpoint)
+        if not resp or not resp.get("data", None):
+            return -1 # denotes that we couldn't get information for this post
+        return resp.get("data", {}).get("count", -1)
+
 
 def main():
     api = ClearSkyAPI()

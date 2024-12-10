@@ -3,6 +3,7 @@ from sentiment import vader_sentiment
 import argparse
 import pandas as pd
 from datetime import datetime
+from evading_rate_limits import MultiClient
 
 
 def save_posts_to_dataframe(posts):
@@ -53,10 +54,10 @@ def parse_arguments():
 
 if __name__ == '__main__':
     args = parse_arguments()
-    username = "warrenglover.bsky.social"
-    password = "Hearthstone123"
-    client = get_client(username, password)
-    posts = get_all_posts(client, args.query, args.dataset_size)
+    client = MultiClient()
+    client.load_env_clients("./.env")
+    until = "2023-03-01T00:00:00Z"
+    posts = get_all_posts(client, args.query, args.dataset_size, until=until)
     df = save_posts_to_dataframe(posts)
     df.to_csv(args.filename)
 

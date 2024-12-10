@@ -6,7 +6,12 @@ import os
 import pickle
 from pyvis.network import Network
 import random
+import pandas as pd
 
+def nodes_to_df(G):
+    node_data = pd.DataFrame.from_dict(dict(G.nodes(data=True)), orient='index').reset_index()
+    node_data.rename(columns={'index': 'node'}, inplace=True)
+    return node_data
 
 def plot_node_degree_distribution(g):
     # Calculate degrees of all nodes

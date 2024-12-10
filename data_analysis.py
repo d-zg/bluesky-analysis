@@ -5,6 +5,18 @@ from scipy.stats import ttest_ind
 import argparse
 
 
+def plot_distribution_of_numeric_cols(df):
+    numeric_columns = df.select_dtypes(include='number').columns
+
+    for col in numeric_columns:
+        plt.figure()
+        plt.hist(df[col], bins=10, edgecolor='k', alpha=0.7)
+        plt.title(f'Histogram of {col}')
+        plt.xlabel(col)
+        plt.ylabel('Frequency')
+        plt.grid(axis='y', linestyle='--', alpha=0.7)
+        plt.show()
+
 def visualize_engagement_boxplot(df, engagement_metric=None):
     """
     Visualizes the engagement for toxic vs. non-toxic posts using a box plot.
